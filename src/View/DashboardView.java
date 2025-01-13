@@ -1,17 +1,16 @@
 package View;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class DashboardView extends JFrame {
 
-    private DefaultTableModel booksTable = new DefaultTableModel();
+    private static DefaultTableModel defaultBooksTable = new DefaultTableModel();
+    static JTable bookTable = new JTable(defaultBooksTable);
+    private static boolean toggleVisibility = true;
 
     public DashboardView() {
         setColumnNames();
@@ -34,7 +33,8 @@ public class DashboardView extends JFrame {
 
         // Right Table
         JPanel rightPanel = new JPanel();
-        JLabel informLabel = new JLabel("Information about books");
+        rightPanel.setLayout(new BorderLayout());
+        JLabel informLabel = new JLabel("Information about books", SwingConstants.CENTER);
         rightPanel.add(informLabel, BorderLayout.NORTH);
 
         JPanel searchPanel = new JPanel();
@@ -43,14 +43,14 @@ public class DashboardView extends JFrame {
         searchPanel.add(searchField);
         searchPanel.add(new Button("Search book"));
 
-        JTable table = new JTable(booksTable);
-        JScrollPane tableScrollPane = new JScrollPane(table);
+        JScrollPane tableScrollPane = new JScrollPane(bookTable);
+
         rightPanel.add(tableScrollPane, BorderLayout.CENTER);
         rightPanel.add(searchPanel, BorderLayout.SOUTH);
 
         add(upperPanel, BorderLayout.NORTH);
+        add(rightPanel, BorderLayout.CENTER);
         add(leftPanel, BorderLayout.WEST);
-        add(rightPanel);
     }
 
     private static JPanel createManagerPanel() {
@@ -129,7 +129,26 @@ public class DashboardView extends JFrame {
         parentPanel.setLayout(new GridLayout(2, 1));
 
         JButton showBooks = new JButton("Show Books");
+        showBooks.addActionListener(e -> {
+            toggleVisibility = true;
+            bookTable.setVisible(toggleVisibility);
+            setColumnNames();
+            setData();
+
+            System.out.println("SSS Column count: " + defaultBooksTable.getColumnCount());
+            System.out.println("SSS Row count: " + defaultBooksTable.getRowCount());
+        });
         JButton returnBooks = new JButton("Return Books");
+        returnBooks.addActionListener(e -> {
+            toggleVisibility = false;
+            bookTable.setVisible(toggleVisibility);
+            setBookedColumnNames();
+            setBookedData();
+
+            System.out.println("RRR Column count: " + defaultBooksTable.getColumnCount());
+            System.out.println("RRRR Row count: " + defaultBooksTable.getRowCount());
+
+        });
         JButton logOut = new JButton("Log Out");
 
         parentPanel.add(showBooks);
@@ -138,20 +157,41 @@ public class DashboardView extends JFrame {
         return  parentPanel;
     }
 
-    public void setColumnNames() {
-        booksTable.addColumn("Book Title");
-        booksTable.addColumn("Book ID");
-        booksTable.addColumn("Author");
-        booksTable.addColumn("Status");
+    private static void setColumnNames() {
+        defaultBooksTable.setColumnCount(0);
+        defaultBooksTable.addColumn("Book Title");
+        defaultBooksTable.addColumn("Book ID");
+        defaultBooksTable.addColumn("Author");
+        defaultBooksTable.addColumn("Status");
 
         // if manager
 //        booksTable.addColumn("ID of holder");
     }
 
-    public void setData() {
-        booksTable.setRowCount(0);
+    private static void setData() {
+        defaultBooksTable.setRowCount(0);
         for (int i = 0; i < 20; i++) {
-            booksTable.addRow(new String[]{"C:+" + i});
+            defaultBooksTable.addRow(new String[]{"C:+" + i});
+        }
+    }
+
+    private static void setBookedColumnNames() {
+        defaultBooksTable.setColumnCount(0);
+        defaultBooksTable.addColumn("Book Title");
+        defaultBooksTable.addColumn("Book ID");
+        defaultBooksTable.addColumn("Author");
+        defaultBooksTable.addColumn("Status");
+        defaultBooksTable.addColumn("Borrow date");
+        defaultBooksTable.addColumn("Return date");
+        defaultBooksTable.addColumn("Days");
+        // if manager
+//        booksTable.addColumn("ID of holder");
+    }
+
+    private static void setBookedData() {
+        defaultBooksTable.setRowCount(0);
+        for (int i = 0; i < 20; i++) {
+            defaultBooksTable.addRow(new String[]{"A:+" + i});
         }
     }
 }
