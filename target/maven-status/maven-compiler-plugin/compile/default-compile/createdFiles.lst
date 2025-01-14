@@ -1,0 +1,9 @@
+Model/Publishers.class
+Model/Librarians.class
+View/DashboardView.class
+Main.class
+Model/Copies.class
+Model/Book.class
+Model/User.class
+Model/Borrowings.class
+View/LoginView.class
