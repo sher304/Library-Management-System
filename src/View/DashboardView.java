@@ -131,20 +131,17 @@ public class DashboardView extends JFrame {
         showBooks.addActionListener(e -> {
             setColumnNames();
             setData();
-
-            System.out.println("SSS Column count: " + defaultBooksTable.getColumnCount());
-            System.out.println("SSS Row count: " + defaultBooksTable.getRowCount());
         });
         JButton returnBooks = new JButton("Return Books");
         returnBooks.addActionListener(e -> {
             setBookedColumnNames();
             setBookedData();
+        });
 
-            System.out.println("RRR Column count: " + defaultBooksTable.getColumnCount());
-            System.out.println("RRRR Row count: " + defaultBooksTable.getRowCount());
+        JButton logOut = new JButton("Log Out");
+        logOut.addActionListener(e -> {
 
         });
-        JButton logOut = new JButton("Log Out");
 
         parentPanel.add(showBooks);
         parentPanel.add(returnBooks);
