@@ -10,7 +10,6 @@ public class DashboardView extends JFrame {
 
     private static DefaultTableModel defaultBooksTable = new DefaultTableModel();
     static JTable bookTable = new JTable(defaultBooksTable);
-    private static boolean toggleVisibility = true;
 
     public DashboardView() {
         setColumnNames();
@@ -130,8 +129,6 @@ public class DashboardView extends JFrame {
 
         JButton showBooks = new JButton("Show Books");
         showBooks.addActionListener(e -> {
-            toggleVisibility = true;
-            bookTable.setVisible(toggleVisibility);
             setColumnNames();
             setData();
 
@@ -140,8 +137,6 @@ public class DashboardView extends JFrame {
         });
         JButton returnBooks = new JButton("Return Books");
         returnBooks.addActionListener(e -> {
-            toggleVisibility = false;
-            bookTable.setVisible(toggleVisibility);
             setBookedColumnNames();
             setBookedData();
 
