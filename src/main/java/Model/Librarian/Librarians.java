@@ -20,6 +20,8 @@ public class Librarians {
     private Date employmentDate;
     @Column(nullable = false)
     private String position;
+    @Column(nullable = false)
+    private String password;
     public int getId() {
         return id;
     }
