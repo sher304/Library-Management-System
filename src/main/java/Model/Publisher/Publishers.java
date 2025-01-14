@@ -1,5 +1,6 @@
-package Model;
+package Model.Publisher;
 
+import Model.Book.Book;
 import jakarta.persistence.*;
 
 import java.util.List;

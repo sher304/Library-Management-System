@@ -1,5 +1,7 @@
 package View;
 
+import Controller.BookController;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -11,9 +13,15 @@ public class DashboardView extends JFrame {
     private static DefaultTableModel defaultBooksTable = new DefaultTableModel();
     static JTable bookTable = new JTable(defaultBooksTable);
 
-    public DashboardView() {
-        setColumnNames();
-        setData();
+    private static BookController bookController;
+    public DashboardView(BookController bookController) {
+        this.bookController = bookController;
+        drawMenu();
+    }
+
+    private void drawMenu() {
+//        setColumnNames();
+//        setData();
 
         setTitle("Library Management System");
         setSize(800, 600);
@@ -27,8 +35,8 @@ public class DashboardView extends JFrame {
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-//        leftPanel.add(createManagerPanel());
-        leftPanel.add(createUserLeftPanel());
+        leftPanel.add(createManagerPanel());
+//        leftPanel.add(createUserLeftPanel());
 
         // Right Table
         JPanel rightPanel = new JPanel();
@@ -101,11 +109,12 @@ public class DashboardView extends JFrame {
 
         JButton addBook = new JButton("Add new book");
         addBook.addActionListener(e -> {
-            System.out.println("Book title: " + bookTitleField.getText());
-            System.out.println("Book id: " + bookIdField.getText());
-            System.out.println("Book author: " + authorField.getText());
-            System.out.println("Book publisher: " + publisherField.getText());
-            System.out.println("Book publication date: " + txtDate.getText());
+            bookController.addBook(bookTitleField.getText(),
+                                    bookIdField.getText(),
+                                    authorField.getText(),
+                                    publisherField.getText(),
+                                    txtDate.getText());
+
         });
         addBook.setPreferredSize(new Dimension(150, 30));
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));

@@ -1,5 +1,6 @@
-package Model;
+package Model.User;
 
+import Model.Borrowing.Borrowings;
 import jakarta.persistence.*;
 
 import java.util.List;

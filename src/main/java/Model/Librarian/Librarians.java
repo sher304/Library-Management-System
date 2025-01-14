@@ -1,5 +1,6 @@
-package Model;
+package Model.Librarian;
 
+import Model.User.User;
 import jakarta.persistence.*;
 
 import java.util.Date;

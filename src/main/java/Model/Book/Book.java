@@ -1,5 +1,7 @@
-package Model;
+package Model.Book;
 
+import Model.Copy.Copies;
+import Model.Publisher.Publishers;
 import jakarta.persistence.*;
 
 import java.util.List;

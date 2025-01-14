@@ -1,5 +1,6 @@
-package Model;
+package Model.Copy;
 
+import Model.Book.Book;
 import jakarta.persistence.*;
 
 @Entity
