@@ -5,12 +5,7 @@ import Model.Book.BookManager;
 import Model.Book.BookObserver;
 import Model.Publisher.PublisherManager;
 import Model.Publisher.Publishers;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class BookController {
@@ -23,7 +18,9 @@ public class BookController {
         this.bookManager = bookManager;
         this.publisherManager = publisherManager;
     }
+    public void findBookById(String id) {
 
+    }
     public void addBookObservers(BookObserver bookObserver){
         bookObservers.add(bookObserver);
     }
@@ -39,11 +36,6 @@ public class BookController {
         }
     }
     public void addBook(String title, String id, String author, String publisherId, int publicationYear) {
-        if (bookManager.doesBookExists(id)) {
-            notifyBookObservers("Book already exists! " + title);
-            return;
-        }
-
         Publishers publisher = publisherManager.findPublisherById(Integer.parseInt(publisherId));
         if (publisher == null) {
             notifyBookObservers("Publisher is not founded: " + publisherId);
@@ -57,18 +49,46 @@ public class BookController {
         newBook.setPublisher(publisher);
         newBook.setPublicationYear(publicationYear);
 
-        bookManager.saveBook(newBook);
-        notifyBookObservers("Book added! " + title);
+        if (bookManager.doesBookExists(id)) {
+            notifyBookObservers("Book already exists! " + title);
+        } else {
+            bookManager.saveBook(newBook);
+            notifyBookObservers("Book added! " + title);
+        }
+        getBooks();
+    }
+
+    public void deleteBook(String bookId) {
+        if (bookManager.doesBookExists(bookId)) {
+            bookManager.deleteBook(bookId);
+        }
+        getBooks();
     }
 
 
-    public void updateBook(String title, String id, String author, String publisher, String publicationDate) {
-        System.out.println("Update book: ");
-        System.out.println("Book title: " + title);
-        System.out.println("Book id: " + id);
-        System.out.println("Book author: " + author);
-        System.out.println("Book publisher: " + publisher);
-        System.out.println("Book publication date: " + publicationDate);
+    public void updateBook(String title, String id, String author, String publisher, int publicationDate) {
+        if (!bookManager.doesBookExists(id)) {
+            notifyBookObservers("There is no any book with id: " + id);
+            return;
+        };
+
+        Publishers publishers = publisherManager.findPublisherById(Integer.parseInt(publisher));
+
+        if (publisher == null) {
+            notifyBookObservers("Publisher is not founded: " + publisher);
+            return;
+        }
+
+        Book newBook = new Book();
+        newBook.setTitle(title);
+        newBook.setIsbn(id);
+        newBook.setAuthor(author);
+        newBook.setPublisher(publishers);
+        newBook.setPublicationYear(publicationDate);
+
+        notifyBookObservers("Updated book: " + title);
+        bookManager.updateBook(newBook);
+        getBooks();
     }
 
     public void getBooks() {

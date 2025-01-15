@@ -25,9 +25,6 @@ public class DashboardView extends JFrame implements BookObserver {
     }
 
     private void drawMenu() {
-//        setColumnNames();
-//        setData();
-
         setTitle("Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -113,6 +110,7 @@ public class DashboardView extends JFrame implements BookObserver {
         searchPanel.add(new Button("Search book"));
 
         JButton addBook = new JButton("Add new book");
+        addBook.setPreferredSize(new Dimension(150, 30));
         addBook.addActionListener(e -> {
             bookController.addBook(bookTitleField.getText(),
                                     bookIdField.getText(),
@@ -123,20 +121,26 @@ public class DashboardView extends JFrame implements BookObserver {
         });
 
         JButton updateBook = new JButton("Update book");
-        addBook.setPreferredSize(new Dimension(150, 30));
         updateBook.setPreferredSize(new Dimension(150, 30));
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonPanel.add(addBook);
-        buttonPanel.add(updateBook);
-
         updateBook.addActionListener(e -> {
             bookController.updateBook(bookTitleField.getText(),
                     bookIdField.getText(),
                     authorField.getText(),
                     publisherField.getText(),
-                    txtDate.getText());
+                    Integer.parseInt(txtDate.getText()));
 
         });
+
+        JButton deleteBook = new JButton("Delete book");
+        deleteBook.addActionListener( e -> {
+            bookController.deleteBook(bookIdField.getText());
+        });
+
+        deleteBook.setPreferredSize(new Dimension(150, 30));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.add(addBook);
+        buttonPanel.add(updateBook);
+        buttonPanel.add(deleteBook);
 
         parentPanel.add(bookTitlePanel);
         parentPanel.add(bookIdPanel);
