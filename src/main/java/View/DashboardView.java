@@ -1,6 +1,7 @@
 package View;
 
 import Controller.BookController;
+import Controller.UserController;
 import Model.Book.Book;
 import Model.Book.BookObserver;
 
@@ -17,7 +18,8 @@ public class DashboardView extends JFrame implements BookObserver {
     static JTable bookTable = new JTable(defaultBooksTable);
 
     private static BookController bookController;
-    public DashboardView(BookController bookController) {
+    private static UserController userController;
+    public DashboardView(BookController bookController, UserController userController) {
         this.bookController = bookController;
         bookController.addBookObservers(this);
         bookController.getBooks();

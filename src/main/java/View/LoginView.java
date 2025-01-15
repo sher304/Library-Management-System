@@ -1,13 +1,22 @@
 package View;
 
+import Controller.UserController;
+import Model.User.UserObserver;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
-public class LoginView extends JFrame {
+public class LoginView extends JFrame implements UserObserver {
 
+    private UserController userController;
+    public LoginView(UserController userController)  {
+        this.userController = userController;
+        userController.addUserObservers(this);
+        drawWindow();
+    }
 
-    public LoginView() {
+    public void drawWindow() {
         setTitle("Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -20,7 +29,7 @@ public class LoginView extends JFrame {
 
         JPanel loginPanel = new JPanel();
         loginPanel.setLayout(new GridLayout(2 , 1));
-        JLabel loginLabel = new JLabel("Enter login:");
+        JLabel loginLabel = new JLabel("Enter email:");
         JTextField loginTextField = new JTextField("");;
         loginPanel.add(loginLabel, BorderLayout.NORTH);
         loginPanel.add(loginTextField);
@@ -40,10 +49,20 @@ public class LoginView extends JFrame {
         buttonsPanel.add(signInButton, BorderLayout.SOUTH);
         buttonsPanel.add(createAccount, BorderLayout.NORTH);
 
+        signInButton.addActionListener(e -> {
+            userController.singIn(loginTextField.getText(), passwordTextField.getPassword());
+        });
+
         mainParentPanel.add(loginPanel, BorderLayout.NORTH);
         mainParentPanel.add(passwordPanel, BorderLayout.CENTER);
         mainParentPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         add(mainParentPanel);
+    }
+
+    @Override
+    public void loginStatus(String message) {
+        if (message.equals("Login")) this.setVisible(false);
+        System.out.println(message);
     }
 }
