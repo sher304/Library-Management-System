@@ -1,14 +1,17 @@
 package View;
 
 import Controller.BookController;
+import Model.Book.Book;
+import Model.Book.BookObserver;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
-public class DashboardView extends JFrame {
+public class DashboardView extends JFrame implements BookObserver {
 
     private static DefaultTableModel defaultBooksTable = new DefaultTableModel();
     static JTable bookTable = new JTable(defaultBooksTable);
@@ -16,6 +19,8 @@ public class DashboardView extends JFrame {
     private static BookController bookController;
     public DashboardView(BookController bookController) {
         this.bookController = bookController;
+        bookController.addBookObservers(this);
+        bookController.getBooks();
         drawMenu();
     }
 
@@ -88,7 +93,7 @@ public class DashboardView extends JFrame {
 
         JPanel publisherDataPanel = new JPanel();
         publisherDataPanel.setLayout(new BoxLayout(publisherDataPanel, BoxLayout.Y_AXIS));
-        JLabel publisherLabel = new JLabel("Publisher");
+        JLabel publisherLabel = new JLabel("Publisher id");
         JTextField publisherField = new JTextField("");
         publisherDataPanel.add(publisherLabel);
         publisherDataPanel.add(publisherField);
@@ -96,7 +101,7 @@ public class DashboardView extends JFrame {
         JPanel publicationDataPanel = new JPanel();
         publicationDataPanel.setLayout(new BoxLayout(publicationDataPanel, BoxLayout.Y_AXIS));
         JLabel publicationLabel = new JLabel("Publication Date");
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        DateFormat df = new SimpleDateFormat("yyyy");
         JFormattedTextField txtDate = new JFormattedTextField(df);
         publicationDataPanel.add(publicationLabel);
         publicationDataPanel.add(txtDate);
@@ -113,12 +118,25 @@ public class DashboardView extends JFrame {
                                     bookIdField.getText(),
                                     authorField.getText(),
                                     publisherField.getText(),
-                                    txtDate.getText());
+                    Integer.parseInt(txtDate.getText()));
 
         });
+
+        JButton updateBook = new JButton("Update book");
         addBook.setPreferredSize(new Dimension(150, 30));
+        updateBook.setPreferredSize(new Dimension(150, 30));
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(addBook);
+        buttonPanel.add(updateBook);
+
+        updateBook.addActionListener(e -> {
+            bookController.updateBook(bookTitleField.getText(),
+                    bookIdField.getText(),
+                    authorField.getText(),
+                    publisherField.getText(),
+                    txtDate.getText());
+
+        });
 
         parentPanel.add(bookTitlePanel);
         parentPanel.add(bookIdPanel);
@@ -138,13 +156,11 @@ public class DashboardView extends JFrame {
 
         JButton showBooks = new JButton("Show Books");
         showBooks.addActionListener(e -> {
-            setColumnNames();
-            setData();
+
         });
         JButton returnBooks = new JButton("Return Books");
         returnBooks.addActionListener(e -> {
-            setBookedColumnNames();
-            setBookedData();
+
         });
 
         JButton logOut = new JButton("Log Out");
@@ -169,30 +185,33 @@ public class DashboardView extends JFrame {
 //        booksTable.addColumn("ID of holder");
     }
 
-    private static void setData() {
-        defaultBooksTable.setRowCount(0);
-        for (int i = 0; i < 20; i++) {
-            defaultBooksTable.addRow(new String[]{"C:+" + i});
-        }
+    @Override
+    public void updateBookStatus(String message) {
+        System.out.println(message);
     }
 
-    private static void setBookedColumnNames() {
+    @Override
+    public void onBooksLoaded(List<Book> books) {
+        defaultBooksTable.setRowCount(0);
         defaultBooksTable.setColumnCount(0);
-        defaultBooksTable.addColumn("Book Title");
-        defaultBooksTable.addColumn("Book ID");
-        defaultBooksTable.addColumn("Author");
-        defaultBooksTable.addColumn("Status");
-        defaultBooksTable.addColumn("Borrow date");
-        defaultBooksTable.addColumn("Return date");
-        defaultBooksTable.addColumn("Days");
-        // if manager
-//        booksTable.addColumn("ID of holder");
-    }
 
-    private static void setBookedData() {
-        defaultBooksTable.setRowCount(0);
-        for (int i = 0; i < 20; i++) {
-            defaultBooksTable.addRow(new String[]{"A:+" + i});
+        String[] columnNames = {"ID", "Title", "Author", "Publisher", "Publication Year", "ISBN"};
+
+        for(String column: columnNames) {
+            defaultBooksTable.addColumn(column);
+        }
+
+        for (Book book : books) {
+            System.out.println("GET TITLE: " + book.getTitle());
+            Object[] rowData = {
+                    book.getId(),
+                    book.getTitle(),
+                    book.getAuthor(),
+                    book.getPublisher().getName(),
+                    book.getPublicationYear(),
+                    book.getIsbn()
+            };
+            defaultBooksTable.addRow(rowData);
         }
     }
 }
