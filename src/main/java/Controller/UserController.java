@@ -42,11 +42,11 @@ public class UserController {
         else {
             this.user = user;
             notifyUserObservers("Login");
-            runDashboard();
+            runDashboard(user);
         };
     }
 
-    private void runDashboard() {
+    private void runDashboard(User user) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("LibraryManagementPU");
         EntityManager entityManager = emf.createEntityManager();
 
@@ -54,7 +54,8 @@ public class UserController {
         PublisherManager publisherService = new PublisherManager(entityManager);
         BookController bookController = new BookController(bookService, publisherService);
 
-        DashboardView dashboardView = new DashboardView(bookController, this);
+        boolean isLibrarian = userManager.isLibrarian(user);
+        DashboardView dashboardView = new DashboardView(bookController, this, user, isLibrarian);
         dashboardView.setVisible(true);
     }
 }

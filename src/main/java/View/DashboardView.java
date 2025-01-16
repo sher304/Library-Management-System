@@ -4,6 +4,7 @@ import Controller.BookController;
 import Controller.UserController;
 import Model.Book.Book;
 import Model.Book.BookObserver;
+import Model.User.User;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -19,14 +20,16 @@ public class DashboardView extends JFrame implements BookObserver {
 
     private static BookController bookController;
     private static UserController userController;
-    public DashboardView(BookController bookController, UserController userController) {
+    public DashboardView(BookController bookController,
+                         UserController userController,
+                         User user, boolean isLibrarian) {
         this.bookController = bookController;
         bookController.addBookObservers(this);
         bookController.getBooks();
-        drawMenu();
+        drawMenu(isLibrarian);
     }
 
-    private void drawMenu() {
+    private void drawMenu(boolean isLibrarian) {
         setTitle("Library Management System");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,8 +42,8 @@ public class DashboardView extends JFrame implements BookObserver {
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-        leftPanel.add(createManagerPanel());
-//        leftPanel.add(createUserLeftPanel());
+        if (isLibrarian) leftPanel.add(createManagerPanel());
+        else leftPanel.add(createUserLeftPanel());
 
         // Right Table
         JPanel rightPanel = new JPanel();

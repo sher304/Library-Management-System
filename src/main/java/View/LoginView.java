@@ -10,6 +10,7 @@ import java.awt.*;
 public class LoginView extends JFrame implements UserObserver {
 
     private UserController userController;
+    private static JLabel loginLabel = new JLabel();
     public LoginView(UserController userController)  {
         this.userController = userController;
         userController.addUserObservers(this);
@@ -29,7 +30,7 @@ public class LoginView extends JFrame implements UserObserver {
 
         JPanel loginPanel = new JPanel();
         loginPanel.setLayout(new GridLayout(2 , 1));
-        JLabel loginLabel = new JLabel("Enter email:");
+        loginLabel.setText("Enter email");
         JTextField loginTextField = new JTextField("");;
         loginPanel.add(loginLabel, BorderLayout.NORTH);
         loginPanel.add(loginTextField);
@@ -63,6 +64,7 @@ public class LoginView extends JFrame implements UserObserver {
     @Override
     public void loginStatus(String message) {
         if (message.equals("Login")) this.setVisible(false);
+        loginLabel.setText("Wrong password or email!");
         System.out.println(message);
     }
 }
