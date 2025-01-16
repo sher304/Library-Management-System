@@ -20,10 +20,14 @@ public class DashboardView extends JFrame implements BookObserver {
 
     private static BookController bookController;
     private static UserController userController;
+    private static User user;
+
     public DashboardView(BookController bookController,
                          UserController userController,
                          User user, boolean isLibrarian) {
         this.bookController = bookController;
+        this.userController = userController;
+        this.user = user;
         bookController.addBookObservers(this);
         bookController.getBooks();
         drawMenu(isLibrarian);
@@ -43,7 +47,7 @@ public class DashboardView extends JFrame implements BookObserver {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         if (isLibrarian) leftPanel.add(createManagerPanel());
-        else leftPanel.add(createUserLeftPanel());
+        else leftPanel.add(createUserLeftPanel(this));
 
         // Right Table
         JPanel rightPanel = new JPanel();
@@ -108,11 +112,13 @@ public class DashboardView extends JFrame implements BookObserver {
         publicationDataPanel.add(publicationLabel);
         publicationDataPanel.add(txtDate);
 
-        JPanel searchPanel = new JPanel();
-        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
-        JTextField searchField = new JTextField("");
-        searchPanel.add(searchField);
-        searchPanel.add(new Button("Search book"));
+
+        JPanel copiesDataPanel = new JPanel();
+        copiesDataPanel.setLayout(new BoxLayout(copiesDataPanel, BoxLayout.Y_AXIS));
+        JLabel copiesLabel = new JLabel("Copies: ");
+        JTextField copiesField = new JTextField("");
+        copiesDataPanel.add(copiesLabel);
+        copiesDataPanel.add(copiesField);
 
         JButton addBook = new JButton("Add new book");
         addBook.setPreferredSize(new Dimension(150, 30));
@@ -121,6 +127,7 @@ public class DashboardView extends JFrame implements BookObserver {
                                     bookIdField.getText(),
                                     authorField.getText(),
                                     publisherField.getText(),
+                    Integer.parseInt(copiesField.getText()),
                     Integer.parseInt(txtDate.getText()));
 
         });
@@ -152,46 +159,55 @@ public class DashboardView extends JFrame implements BookObserver {
         parentPanel.add(authorDataPanel);
         parentPanel.add(publisherDataPanel);
         parentPanel.add(publicationDataPanel);
+        parentPanel.add(copiesDataPanel);
         parentPanel.add(buttonPanel);
-        parentPanel.add(searchPanel);
 
         return  parentPanel;
     }
 
 
-    private static JPanel createUserLeftPanel() {
+    private static JPanel createUserLeftPanel(JFrame jFrame) {
         JPanel parentPanel = new JPanel();
         parentPanel.setLayout(new GridLayout(2, 1));
 
-        JButton showBooks = new JButton("Show Books");
-        showBooks.addActionListener(e -> {
-
-        });
-        JButton returnBooks = new JButton("Return Books");
-        returnBooks.addActionListener(e -> {
-
-        });
-
         JButton logOut = new JButton("Log Out");
         logOut.addActionListener(e -> {
+            if (logOut.getText().equals("History")) bookController.getHistoryBooks(user);
+            else {
+                userController.signOut();
+                jFrame.setVisible(false);
+            }
+        });
 
+        JButton borrowBook = new JButton("Borrow book");
+        borrowBook.addActionListener(e -> {
+            int row = bookTable.getSelectedRow();
+            int column = bookTable.getSelectedColumn();
+            String value = bookTable.getValueAt(row, column).toString();
+
+            if (borrowBook.getText().equals("Return book")) bookController.returnBook(user, value);
+            else bookController.borrowBook(user, value);
+        });
+
+        JButton returnBooks = new JButton("Show Books");
+        returnBooks.addActionListener(e -> {
+            if (logOut.getText().equals("Log Out")) logOut.setText("History");
+            if (borrowBook.getText().equals("Borrow book")) borrowBook.setText("Return book");
+            bookController.getBorrowedBooks(user);
+        });
+
+        JButton showBooks = new JButton("Show Books");
+        showBooks.addActionListener(e -> {
+            if (borrowBook.getText().equals("Return book")) borrowBook.setText("Borrow book");
+            if (logOut.getText().equals("History")) logOut.setText("Log Out");
+            bookController.getBooks();
         });
 
         parentPanel.add(showBooks);
         parentPanel.add(returnBooks);
         parentPanel.add(logOut);
+        parentPanel.add(borrowBook);
         return  parentPanel;
-    }
-
-    private static void setColumnNames() {
-        defaultBooksTable.setColumnCount(0);
-        defaultBooksTable.addColumn("Book Title");
-        defaultBooksTable.addColumn("Book ID");
-        defaultBooksTable.addColumn("Author");
-        defaultBooksTable.addColumn("Status");
-
-        // if manager
-//        booksTable.addColumn("ID of holder");
     }
 
     @Override
@@ -211,7 +227,6 @@ public class DashboardView extends JFrame implements BookObserver {
         }
 
         for (Book book : books) {
-            System.out.println("GET TITLE: " + book.getTitle());
             Object[] rowData = {
                     book.getId(),
                     book.getTitle(),

@@ -64,6 +64,7 @@ public class LoginView extends JFrame implements UserObserver {
     @Override
     public void loginStatus(String message) {
         if (message.equals("Login")) this.setVisible(false);
+        else if (message.equals("Log out")) this.setVisible(true);
         loginLabel.setText("Wrong password or email!");
         System.out.println(message);
     }

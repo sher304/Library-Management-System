@@ -58,4 +58,10 @@ public class UserController {
         DashboardView dashboardView = new DashboardView(bookController, this, user, isLibrarian);
         dashboardView.setVisible(true);
     }
+
+    public void signOut() {
+        this.user = null;
+        notifyUserObservers("Log out");
+//        dashboardView.setVisible(false);
+    }
 }

@@ -5,8 +5,11 @@ import Model.Book.BookManager;
 import Model.Book.BookObserver;
 import Model.Publisher.PublisherManager;
 import Model.Publisher.Publishers;
+import Model.User.User;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BookController {
 
@@ -35,7 +38,10 @@ public class BookController {
             observer.onBooksLoaded(books);
         }
     }
-    public void addBook(String title, String id, String author, String publisherId, int publicationYear) {
+    public void addBook(String title, String id, String author,
+                        String publisherId,
+                        int copyAmount,
+                        int publicationYear) {
         Publishers publisher = publisherManager.findPublisherById(Integer.parseInt(publisherId));
         if (publisher == null) {
             notifyBookObservers("Publisher is not founded: " + publisherId);
@@ -52,7 +58,7 @@ public class BookController {
         if (bookManager.doesBookExists(id)) {
             notifyBookObservers("Book already exists! " + title);
         } else {
-            bookManager.saveBook(newBook);
+            bookManager.saveBook(newBook, copyAmount);
             notifyBookObservers("Book added! " + title);
         }
         getBooks();
@@ -94,5 +100,34 @@ public class BookController {
     public void getBooks() {
         List<Book> books = bookManager.getAllBooks();
         notifyBookLoadObservers(books);
+    }
+
+    public void borrowBook(User user, String isbn) {
+        if (bookManager.borrowBook(user, isbn)) notifyBookObservers("Book has been taken");
+        else notifyBookObservers("Can not take this book...");
+    }
+
+    public void returnBook(User user, String isbn) {
+        if (bookManager.returnBook(user, isbn)) notifyBookObservers("Book has been returned!");
+        else notifyBookObservers("Book can't be founded");
+    }
+
+    public void getBorrowedBooks(User user) {
+        List<Book> borrowedBooks = bookManager.getBorrowedBooks(user);
+
+        if (borrowedBooks.isEmpty()) {
+            notifyBookObservers("No books currently borrowed.");
+        } else {
+            notifyBookLoadObservers(borrowedBooks);
+        }
+    }
+
+    public void getHistoryBooks(User user) {
+        List<Book> borrowedBooks = bookManager.getHistoryBooks(user);
+        if (borrowedBooks.isEmpty()) {
+            notifyBookObservers("No books currently borrowed.");
+        } else {
+            notifyBookLoadObservers(borrowedBooks);
+        }
     }
 }
