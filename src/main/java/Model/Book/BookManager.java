@@ -78,7 +78,16 @@ public class BookManager {
         int currentCopyCount = existingCopies.size();
         if (newCopyAmount < currentCopyCount) {
             for (int i = newCopyAmount; i < currentCopyCount; i++) {
-                entityManager.remove(existingCopies.get(i));
+                Copies copyToDelete = existingCopies.get(i);
+                long count = entityManager.createQuery(
+                                "SELECT COUNT(b) FROM Borrowings b WHERE b.copy = :copy", Long.class)
+                        .setParameter("copy", copyToDelete)
+                        .getSingleResult();
+                if (count == 0) {
+                    entityManager.remove(copyToDelete);
+                } else {
+                    System.out.println("Cannot delete copy with active borrowings.");
+                }
             }
         } else if (newCopyAmount > currentCopyCount) {
             for (int i = currentCopyCount; i < newCopyAmount; i++) {
@@ -89,7 +98,6 @@ public class BookManager {
                 entityManager.persist(newCopy);
             }
         }
-
         entityManager.merge(existingBook);
         entityManager.getTransaction().commit();
     }
@@ -118,6 +126,7 @@ public class BookManager {
 
 
     public List<Book> getAllBooks() {
+        entityManager.clear();
         return entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();
     }
 
