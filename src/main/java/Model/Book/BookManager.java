@@ -27,6 +27,16 @@ public class BookManager {
         return existingBook;
     }
 
+    public Book findBookByIsbn(String isbn) {
+        Book existingBook = entityManager.createQuery(
+                        "SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class)
+                .setParameter("isbn", isbn)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+        return existingBook;
+    }
+
     public boolean doesBookExists(String id) {
         return entityManager
                 .createQuery("SELECT COUNT(b) FROM Book b WHERE b.isbn = :isbn", Long.class)
@@ -47,20 +57,41 @@ public class BookManager {
         entityManager.getTransaction().commit();
     }
 
-    public void updateBook(Book book) {
+    public void updateBook(Book book, int newCopyAmount) {
+        entityManager.getTransaction().begin();
         Book existingBook = findExistingBook(book);
-        if (existingBook == null) return;
-
+        if (existingBook == null) {
+            System.out.println("Book not found.");
+            entityManager.getTransaction().rollback();
+            return;
+        }
         existingBook.setTitle(book.getTitle());
         existingBook.setAuthor(book.getAuthor());
         existingBook.setPublisher(book.getPublisher());
-        existingBook.setIsbn(book.getIsbn());
         existingBook.setPublicationYear(book.getPublicationYear());
+        existingBook.setIsbn(book.getIsbn());
 
-        entityManager.getTransaction().begin();
+        List<Copies> existingCopies = entityManager.createQuery(
+                        "SELECT c FROM Copies c WHERE c.book = :book", Copies.class)
+                .setParameter("book", existingBook)
+                .getResultList();
+        int currentCopyCount = existingCopies.size();
+        if (newCopyAmount < currentCopyCount) {
+            for (int i = newCopyAmount; i < currentCopyCount; i++) {
+                entityManager.remove(existingCopies.get(i));
+            }
+        } else if (newCopyAmount > currentCopyCount) {
+            for (int i = currentCopyCount; i < newCopyAmount; i++) {
+                Copies newCopy = new Copies();
+                newCopy.setBook(existingBook);
+                newCopy.setCopyNumber(i + 1);
+                newCopy.setStatus("Available");
+                entityManager.persist(newCopy);
+            }
+        }
+
         entityManager.merge(existingBook);
         entityManager.getTransaction().commit();
-
     }
 
     public void deleteBook(String id) {
@@ -91,49 +122,41 @@ public class BookManager {
     }
 
     public boolean borrowBook(User user, String isbn) {
-        entityManager.getTransaction().begin();
-
+        System.out.println("TRYY WILL STRAT");
         try {
-            Book book = entityManager.createQuery(
-                            "SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class)
-                    .setParameter("isbn", isbn)
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
-
-            if (book == null) {
-                System.out.println("Book not found.");
-                entityManager.getTransaction().rollback();
-                return false;
-            }
-
+            System.out.println("TRYYY STARTED");
+            System.out.println("ID: " + isbn);
             Copies availableCopy = entityManager.createQuery(
-                            "SELECT c FROM Copies c WHERE c.book = :book AND NOT EXISTS (" +
-                                    "SELECT 1 FROM Borrowings br WHERE br.copy = c AND br.returnDate IS NULL)", Copies.class)
-                    .setParameter("book", book)
-                    .setLockMode(LockModeType.PESSIMISTIC_WRITE)
-                    .getResultStream()
-                    .findFirst()
-                    .orElse(null);
+                            "SELECT c FROM Copies c JOIN c.book b WHERE b.isbn = :isbn AND c.status = 'Available'", Copies.class)
+                    .setParameter("isbn", isbn)
+                    .setMaxResults(1)
+                    .getSingleResult();
+            System.out.println("COPY ID!!!: " + availableCopy.getId());
+            if (availableCopy != null) {
+                System.out.println("IS NOT NULL!");
+                entityManager.getTransaction().begin();
 
-            if (availableCopy == null) {
-                System.out.println("No available copies of the book.");
-                entityManager.getTransaction().rollback();
-                return false;
+                availableCopy.setStatus("Borrowed");
+
+                Borrowings borrowing = new Borrowings();
+                borrowing.setCopy(availableCopy);
+                borrowing.setUser(user);
+                borrowing.setBorrowDate(new Date());
+                borrowing.setReturnDate(null);
+
+                entityManager.persist(borrowing);
+                entityManager.getTransaction().commit();
+                System.out.println("SETTED!\n");
+                return true;
             }
-
-            Borrowings borrowing = new Borrowings();
-            borrowing.setUser(user);
-            borrowing.setCopy(availableCopy);
-            borrowing.setBorrowDate(new Date());
-
-            entityManager.persist(borrowing);
-            entityManager.getTransaction().commit();
-            return true;
         } catch (NoResultException e) {
-            return false;
+            System.out.println("MESSAGE: " + e.getMessage());
+            return  false;
         }
+        System.out.println("FALSE CAESE: ");
+        return false;
     }
+
 
     public boolean returnBook(User user, String isbn) {
         entityManager.getTransaction().begin();
