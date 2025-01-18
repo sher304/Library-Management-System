@@ -131,8 +131,22 @@ public class BookManager {
     }
 
     public boolean borrowBook(User user, String isbn) {
+        int borrow_limiter = 5;
+
         System.out.println("TRYY WILL STRAT");
+        entityManager.getTransaction().begin();
         try {
+            long activeBorrowingsCount = entityManager.createQuery(
+                            "SELECT COUNT(b) FROM Borrowings b WHERE b.user = :user AND b.returnDate IS NULL", Long.class)
+                    .setParameter("user", user)
+                    .getSingleResult();
+
+            if (activeBorrowingsCount >= borrow_limiter) {
+                System.out.println("Borrowing limit reached! You cannot borrow more than " + borrow_limiter + " books.");
+                entityManager.getTransaction().rollback();
+                return false;
+            }
+
             System.out.println("TRYYY STARTED");
             System.out.println("ID: " + isbn);
             Copies availableCopy = entityManager.createQuery(
@@ -143,7 +157,6 @@ public class BookManager {
             System.out.println("COPY ID!!!: " + availableCopy.getId());
             if (availableCopy != null) {
                 System.out.println("IS NOT NULL!");
-                entityManager.getTransaction().begin();
 
                 availableCopy.setStatus("Borrowed");
 
@@ -215,6 +228,7 @@ public class BookManager {
 
 
     public List<Book> getBorrowedBooks(User user) {
+        entityManager.clear();
         List<Book> currentBooks = entityManager.createQuery(
                         "SELECT br.copy.book FROM Borrowings br WHERE br.user = :user AND br.returnDate IS NULL", Book.class)
                 .setParameter("user", user)
@@ -224,6 +238,7 @@ public class BookManager {
     }
 
     public List<Book> getHistoryBooks(User user) {
+        entityManager.clear();
         return entityManager.createQuery(
                         "SELECT br.copy.book FROM Borrowings br WHERE br.user = :user", Book.class)
                 .setParameter("user", user)

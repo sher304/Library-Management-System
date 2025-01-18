@@ -23,7 +23,7 @@ public class Book {
     private int publicationYear;
     @Column(nullable = false, unique = true)
     private String isbn;
-    @OneToMany(mappedBy = "book", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Copies> copies;
 
     public int getId() {
