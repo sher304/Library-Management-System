@@ -1,7 +1,10 @@
 package Model.Copy;
 
 import Model.Book.Book;
+import Model.Borrowing.Borrowings;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "Copies")
@@ -16,6 +19,8 @@ public class Copies {
     private int copyNumber;
     @Column(nullable = false)
     private String status;
+    @OneToMany(mappedBy = "copy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Borrowings> borrowings;
     public int getId() {
         return id;
     }

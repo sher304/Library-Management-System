@@ -46,6 +46,8 @@ public class Publishers {
         return phoneNumber;
     }
 
+    public void setId(int id) { this.id = id; }
+
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }

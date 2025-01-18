@@ -49,4 +49,10 @@ public class Librarians {
     public void setPosition(String position) {
         this.position = position;
     }
+
+    public void setPassword(String password) { this.password = password; }
+
+    public String getPassword() { return password; }
+
+    public void setId(int id) { this.id = id; }
 }

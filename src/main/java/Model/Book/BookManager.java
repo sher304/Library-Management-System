@@ -8,15 +8,27 @@ import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 
 import java.util.*;
-
+/**
+ * Manages book-related operations such as saving, updating, deleting,
+ * and borrowing books. Handles persistence using JPA.
+ */
 public class BookManager {
 
     private EntityManager entityManager;
-
+    /**
+     * Initializes the BookManager with the given EntityManager.
+     *
+     * @param entityManager the EntityManager for database operations
+     */
     public BookManager(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-
+    /**
+     * Finds an existing book in the database by matching its ISBN.
+     *
+     * @param book the ISBN of the book to find
+     * @return the found Book or {@code null} if not found
+     */
     public Book findExistingBook(Book book) {
         Book existingBook = entityManager.createQuery(
                         "SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class)
@@ -43,8 +55,14 @@ public class BookManager {
                 .setParameter("isbn", id)
                 .getSingleResult() > 0;
     }
-
+    /**
+     * Saves a new book and its copies to the database.
+     *
+     * @param book       the book to save
+     * @param copyAmount the number of copies to create
+     */
     public void saveBook(Book book, int copyAmount) {
+        System.out.println(book.getPublisher());
         entityManager.getTransaction().begin();
         entityManager.persist(book);
         for (int i = 0; i < copyAmount; i++) {
@@ -56,7 +74,12 @@ public class BookManager {
         }
         entityManager.getTransaction().commit();
     }
-
+    /**
+     * Update a new book and its copies to the database.
+     *
+     * @param book       the book to save
+     * @param newCopyAmount the number of copies to create
+     */
     public void updateBook(Book book, int newCopyAmount) {
         entityManager.getTransaction().begin();
         Book existingBook = findExistingBook(book);
@@ -102,6 +125,11 @@ public class BookManager {
         entityManager.getTransaction().commit();
     }
 
+    /**
+     * Delete a new book and its copies to the database.
+     *
+     * @param id       the book to isbn
+     */
     public void deleteBook(String id) {
         entityManager.getTransaction().begin();
 
@@ -124,12 +152,22 @@ public class BookManager {
         entityManager.getTransaction().commit();
     }
 
-
+    /**
+     * Get all books
+    * @return the founded List<Book>
+     */
     public List<Book> getAllBooks() {
         entityManager.clear();
         return entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();
     }
 
+    /**
+     * Borrow a book
+     *
+     * @param user       User who want to borrow
+     * @param isbn the isbn of the book
+     * @return the boolean, if its able to borrow
+     */
     public boolean borrowBook(User user, String isbn) {
         int borrow_limiter = 5;
 
@@ -179,7 +217,13 @@ public class BookManager {
         return false;
     }
 
-
+    /**
+     * Return a book
+     *
+     * @param user       User who want to return a book
+     * @param isbn the isbn of the returning book
+     * @return the boolean, if its able to return
+     */
     public boolean returnBook(User user, String isbn) {
         entityManager.getTransaction().begin();
         Book book = entityManager.createQuery(
@@ -226,7 +270,12 @@ public class BookManager {
         return true;
     }
 
-
+    /**
+     * Return a borrowed current books
+     *
+     * @param user       User who wants to see his books
+     * @return the List<Book>
+     */
     public List<Book> getBorrowedBooks(User user) {
         entityManager.clear();
         List<Book> currentBooks = entityManager.createQuery(
@@ -237,6 +286,12 @@ public class BookManager {
         return currentBooks;
     }
 
+    /**
+     * Return a borrowed current books
+     *
+     * @param user       User who wants to see his history of borrowing books
+     * @return the List<Book>
+     */
     public List<Book> getHistoryBooks(User user) {
         entityManager.clear();
         return entityManager.createQuery(

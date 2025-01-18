@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"Controller"},{"l":"Model.Book"},{"l":"Model.Borrowing"},{"l":"Model.Copy"},{"l":"Model.Librarian"},{"l":"Model.Publisher"},{"l":"Model.User"},{"l":"View"}];updateSearchResults();
