@@ -2,21 +2,6 @@
 
 A desktop-based Java application that allows library staff to manage books, members, and transactions (like issuing and returning books). This project is structured using **Maven** and follows OOP principles to keep the code modular and maintainable.
 
----
-
-## 🧾 Table of Contents
-
-- [About](#about)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [How to Run](#how-to-run)
-- [Screenshots](#screenshots)
-- [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
-- [License](#license)
-
----
 
 ## 📖 About
 
